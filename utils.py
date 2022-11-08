@@ -35,7 +35,7 @@ def sort_query(param: str, data):
     return sorted(data, reverse=param)
 
 
-def limit_query(param: str, data):
+def limit_query(param: str, data): #
     try:
         param = int(param)
     except:
