@@ -1,10 +1,10 @@
-from typing import Generator
+from typing import Iterable, Iterator, Set, Union
 
 from flask import abort, Response
 import re
 
 
-def regex_query(param: str, data: Generator) -> filter:
+def regex_query(param: str, data: Iterable[str]) -> Iterator[str]:
     return filter(lambda x: re.findall(param, x), data)
 
 
@@ -17,11 +17,11 @@ def file_iter(file_name):
         abort(Response('File Not found', 400))
 
 
-def filter_query(param: str, data: Generator) -> filter:
+def filter_query(param: str, data: Iterable[str]) -> Iterator[str]:
     return filter(lambda x: param in x, data)
 
 
-def map_query(param: str, data: Generator) -> map:
+def map_query(param: str, data: Iterable[str]) -> Iterator[str]:
     try:
         param = int(param)
     except:
@@ -30,18 +30,18 @@ def map_query(param: str, data: Generator) -> map:
     return map(lambda x: x.split(' ')[param], data)
 
 
-def unique_query(*args, data: Generator) -> set:
+def unique_query(*args, data: Iterable[str]) -> Set[str]:
     return set(data)
 
 
-def sort_query(param: str, data: Generator) -> sorted:
+def sort_query(param: str, data: Iterable[str]) -> Iterator[str]:
     if param != 'desc':
         return sorted(data, reverse=True)
     else:
         return sorted(data, reverse=False)
 
 
-def limit_query(param: str, data: Generator) -> Generator:
+def limit_query(param: str, data: Iterable[str]) -> Iterable[str]:
     try:
         param = int(param)
     except:
@@ -55,17 +55,17 @@ class Validator:
         self.query2 = list(filter(lambda x: x is not None, query2))
         self.CMD = ['filter', 'map', 'limit', 'unique', 'sorted', 'regex']
 
-    def _empty_valid(self, value) -> bool:  # Проверка налиячия запроса
+    def _empty_valid(self, value: Union[str, int]) -> bool:  # Проверка налиячия запроса
         if not value:
             return False
         return True
 
-    def _not_complete(self, value) -> bool:  # Проверка целостности запроса (команда/значение)
+    def _not_complete(self, value: list) -> bool:  # Проверка целостности запроса (команда/значение)
         if len(value) != 2:
             return False
         return True
 
-    def _validation(self, value):  # Проверка на существование комманд
+    def _validation(self, value: list) -> Union[list, bool]:  # Проверка на существование комманд
         if not self._empty_valid(value):
             return False
         elif not self._not_complete(value):
