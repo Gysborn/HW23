@@ -3,8 +3,6 @@ from typing import Generator
 from flask import abort, Response
 import re
 
-from extptions import AmountNotIntError
-
 
 def regex_query(param: str, data: Generator) -> filter:
     return filter(lambda x: re.findall(param, x), data)
