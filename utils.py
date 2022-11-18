@@ -1,4 +1,4 @@
-from typing import Iterable, Iterator, Set, Union
+from typing import Iterable, Iterator, Set, Union, List
 
 from flask import abort, Response
 import re
@@ -8,7 +8,12 @@ def regex_query(param: str, data: Iterable[str]) -> Iterator[str]:
     return filter(lambda x: re.findall(param, x), data)
 
 
-def file_iter(file_name):
+def file_iter(file_name: str) -> str:
+    """
+
+    :param file_name: Имя файла
+    :return: Возвращает построчно файл
+    """
     try:
         with open(file_name) as f:
             for row in f:
@@ -75,7 +80,11 @@ class Validator:
         else:
             abort(Response('Некорректный запрос', 400))
 
-    def complete(self):  # Итоговая проверка и вывод листа запросов
+    def complete(self) -> List[str]:  # Итоговая проверка и вывод листа запросов
+        """
+
+        :return: Возвращает лист проверенных запросов
+        """
         result = []
         res1 = self._validation(self.query1)
         res2 = self._validation(self.query2)
