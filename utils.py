@@ -1,14 +1,16 @@
-from typing import Iterable, Iterator, Set, Union, List
+from typing import Iterable, Iterator, Set, Union, List, Generator, Any
 
 from flask import abort, Response
 import re
+
+
 
 
 def regex_query(param: str, data: Iterable[str]) -> Iterator[str]:
     return filter(lambda x: re.findall(param, x), data)
 
 
-def file_iter(file_name: str) -> str:
+def file_iter(file_name: str) -> Generator:
     """
 
     :param file_name: Имя файла
@@ -26,7 +28,7 @@ def filter_query(param: str, data: Iterable[str]) -> Iterator[str]:
     return filter(lambda x: param in x, data)
 
 
-def map_query(param: str, data: Iterable[str]) -> Iterator[str]:
+def map_query(param: int, data: Iterable[str]) -> Iterator[str]:
     try:
         param = int(param)
     except:
@@ -39,20 +41,19 @@ def unique_query(*args, data: Iterable[str]) -> Set[str]:
     return set(data)
 
 
-def sort_query(param: str, data: Iterable[str]) -> Iterator[str]:
+def sort_query(param: str, data: Iterable[str]) -> Iterable[str]:
     if param != 'desc':
         return sorted(data, reverse=True)
     else:
         return sorted(data, reverse=False)
 
 
-def limit_query(param: str, data: Iterable[str]) -> Iterable[str]:
+def limit_query(param: int, data: Iterator) -> Iterable[str]:
     try:
         param = int(param)
     except:
         abort(Response(f'Некорректный параметр {param}'))
     return data[:param]
-
 
 class Validator:
     def __init__(self, query1, query2):
@@ -70,7 +71,7 @@ class Validator:
             return False
         return True
 
-    def _validation(self, value: list) -> Union[list, bool]:  # Проверка на существование комманд
+    def _validation(self, value: Union[Any]) -> Union[Any]:  # Проверка на существование комманд
         if not self._empty_valid(value):
             return False
         elif not self._not_complete(value):
@@ -80,7 +81,7 @@ class Validator:
         else:
             abort(Response('Некорректный запрос', 400))
 
-    def complete(self) -> List[str]:  # Итоговая проверка и вывод листа запросов
+    def complete(self) -> List[Any]:  # Итоговая проверка и вывод листа запросов
         """
 
         :return: Возвращает лист проверенных запросов
