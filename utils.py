@@ -1,9 +1,7 @@
-from typing import Iterable, Iterator, Set, Union, List, Generator, Any
+from typing import Iterable, Iterator, Set, Union, List, Generator, Any, Sequence
 
 from flask import abort, Response
 import re
-
-
 
 
 def regex_query(param: str, data: Iterable[str]) -> Iterator[str]:
@@ -20,7 +18,7 @@ def file_iter(file_name: str) -> Generator:
         with open(file_name) as f:
             for row in f:
                 yield row
-    except:
+    except FileNotFoundError:
         abort(Response('File Not found', 400))
 
 
@@ -31,7 +29,7 @@ def filter_query(param: str, data: Iterable[str]) -> Iterator[str]:
 def map_query(param: int, data: Iterable[str]) -> Iterator[str]:
     try:
         param = int(param)
-    except:
+    except ValueError:
         abort(Response(f'Некорректный параметр {param}'))
 
     return map(lambda x: x.split(' ')[param], data)
@@ -48,12 +46,13 @@ def sort_query(param: str, data: Iterable[str]) -> Iterable[str]:
         return sorted(data, reverse=False)
 
 
-def limit_query(param: int, data: Iterator) -> Iterable[str]:
+def limit_query(param: int, data: Sequence) -> Sequence:
     try:
         param = int(param)
-    except:
+    except ValueError:
         abort(Response(f'Некорректный параметр {param}'))
     return data[:param]
+
 
 class Validator:
     def __init__(self, query1, query2):

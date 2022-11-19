@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from typing import Mapping, Callable
 
 from flask import Flask, request, jsonify
 
@@ -9,7 +9,7 @@ from utils import file_iter, filter_query, map_query, limit_query, unique_query,
 FILE_NAME = 'data/apache_logs.txt'
 
 
-CMD_OF_FUNC = {
+CMD_OF_FUNC: Mapping[str, Callable] = {
     'filter': filter_query,
     'map': map_query,
     'limit': limit_query,
