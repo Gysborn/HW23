@@ -5,7 +5,7 @@ After=network.target
 [Service]
 WorkingDirectory=/home/dmasicev/HW23
 Environment=FLASK_APP=run.py
-ExecStart=/home/dmasicev/HW23/env/bin/python -m flask run -h 0.0.0.0 -p 80
+ExecStart=/home/dmasicev/HW23/venv/bin/python -m flask run -h 0.0.0.0 -p 80
 Restart=always
 
 [Install]
