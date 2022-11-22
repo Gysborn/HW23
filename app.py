@@ -1,13 +1,12 @@
 import os
 from typing import Mapping, Callable
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response, json
 
-
+from extptions import BadRequest
 from utils import file_iter, filter_query, map_query, limit_query, unique_query, sort_query, Validator, regex_query
 
 FILE_NAME = 'data/apache_logs.txt'
-
 
 CMD_OF_FUNC: Mapping[str, Callable] = {
     'filter': filter_query,
@@ -24,11 +23,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
 
-def query_compiler(qwe: list) -> list: # Обработчик/компановщик запросов
+def query_compiler(qwe: list) -> list:  # Обработчик/компановщик запросов
     it = file_iter(FILE_NAME)
     cmd1 = qwe[0]
-    it = CMD_OF_FUNC[cmd1[0]](cmd1[1], data=it) # Словарь в котором значениями являются объекты функций вызываемые по ключу
-    if len(qwe) == 2: # Проверка на кол. запросов
+    it = CMD_OF_FUNC[cmd1[0]](cmd1[1],
+                              data=it)  # Словарь в котором значениями являются объекты функций вызываемые по ключу
+    if len(qwe) == 2:  # Проверка на кол. запросов
         cmd2 = qwe[1]
         it = CMD_OF_FUNC[cmd2[0]](cmd2[1], data=it)
     res = list(it)
@@ -49,5 +49,21 @@ def perform_query():
     return jsonify(res)
 
 
+@app.errorhandler(BadRequest)
+def handle_exception(e):
+    """Return JSON instead of HTML for HTTP errors."""
+    # start with the correct headers and status code from the error
+    response = Response()
+    # replace the body with JSON
+    response.data = json.dumps({
+        "code": 400,
+        "name": e.name,
+        "description": e.description,
+    })
+    response.content_type = "application/json"
+    response.status = 400
+    return response
+
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

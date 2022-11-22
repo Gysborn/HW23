@@ -3,6 +3,8 @@ from typing import Iterable, Iterator, Set, Union, List, Generator, Any, Sequenc
 from flask import abort, Response
 import re
 
+from extptions import BadRequest
+
 
 def regex_query(param: str, data: Iterable[str]) -> Iterator[str]:
     return filter(lambda x: re.findall(param, x), data)
@@ -19,7 +21,7 @@ def file_iter(file_name: str) -> Generator:
             for row in f:
                 yield row
     except FileNotFoundError:
-        abort(Response('File Not found', 400))
+        raise BadRequest(name='File not found', description='Проверте корректность пути к файлу')
 
 
 def filter_query(param: str, data: Iterable[str]) -> Iterator[str]:
@@ -30,7 +32,7 @@ def map_query(param: int, data: Iterable[str]) -> Iterator[str]:
     try:
         param = int(param)
     except ValueError:
-        abort(Response(f'Некорректный параметр {param}'))
+        raise BadRequest(name='Value Error', description='Значение не является числом')
 
     return map(lambda x: x.split(' ')[param], data)
 
@@ -50,7 +52,7 @@ def limit_query(param: int, data: Sequence) -> Sequence:
     try:
         param = int(param)
     except ValueError:
-        abort(Response(f'Некорректный параметр {param}'))
+        raise BadRequest(name='Value Error', description='Значение не является числом')
     return data[:param]
 
 
@@ -74,11 +76,11 @@ class Validator:
         if not self._empty_valid(value):
             return False
         elif not self._not_complete(value):
-            abort(Response('Некорректный запрос', 400))
+            raise BadRequest(name='Bad request', description='Проверте правильность заполнения полей')
         elif value[0] in self.CMD:
             return value
         else:
-            abort(Response('Некорректный запрос', 400))
+            raise BadRequest(name='Bad request', description='Проверте правильность заполнения полей')
 
     def complete(self) -> List[Any]:  # Итоговая проверка и вывод листа запросов
         """
@@ -93,5 +95,5 @@ class Validator:
         if res2:
             result.append(res2)
         if not len(result):
-            abort(Response('Пустой запрос', 400))
+            raise BadRequest(name='Empty request', description='Пустой запрос')
         return result
